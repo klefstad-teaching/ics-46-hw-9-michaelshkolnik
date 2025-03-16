@@ -25,7 +25,7 @@ bool edit_distance_within(const string &str1, const string &str2, int d) {
 
   while (index1 < len1 && index2 < len2) {
     if (str1[index1] != str2[index2]) {
-      if (diff++ > d)
+      if (++diff > d)
         return false;
       if (len1 > len2)
         index1++;
@@ -61,23 +61,30 @@ vector<string> generate_word_ladder(const string &begin_word,
   visited.insert(begin_word);
 
   while (!ladder_queue.empty()) {
-    vector<string> ladder = ladder_queue.front();
-    ladder_queue.pop();
-    string last_word = ladder.back();
+    int size = ladder_queue.size();
+    set<string> level_visited;
 
-    for (const string &word : word_list) {
-      if (is_adjacent(last_word, word) && !visited.count(word)) {
-        visited.insert(word);
-        vector<string> new_ladder = ladder;
-        new_ladder.push_back(word);
+    for (int i = 0; i < size; i++) {
+      vector<string> ladder = ladder_queue.front();
+      ladder_queue.pop();
+      string last_word = ladder.back();
 
-        if (word == end_word) {
-          return new_ladder;
+      for (const string &word : word_list) {
+        if (is_adjacent(last_word, word) && !visited.count(word)) {
+          vector<string> new_ladder = ladder;
+          new_ladder.push_back(word);
+
+          if (word == end_word) {
+            return new_ladder;
+          }
+
+          ladder_queue.push(new_ladder);
+          level_visited.insert(word);
         }
-
-        ladder_queue.push(new_ladder);
       }
     }
+
+    visited.insert(level_visited.begin(), level_visited.end());
   }
 
   return {};
@@ -121,7 +128,7 @@ void verify_word_ladder(const vector<string> &ladder, const string &begin_word,
 
   for (size_t i = 1; i < ladder.size(); i++) {
     if (!word_list.count(ladder[i]) && ladder[i] != end_word) {
-      error(ladder[i - 1], ladder[i], "Word not in dictionary");
+      error(ladder[i - 1], ladder[i], "Invalid word");
       return;
     }
     if (!is_adjacent(ladder[i - 1], ladder[i])) {
