@@ -61,30 +61,23 @@ vector<string> generate_word_ladder(const string &begin_word,
   visited.insert(begin_word);
 
   while (!ladder_queue.empty()) {
-    int size = ladder_queue.size();
-    set<string> level_visited;
+    vector<string> ladder = ladder_queue.front();
+    ladder_queue.pop();
+    string last_word = ladder.back();
 
-    for (int i = 0; i < size; i++) {
-      vector<string> current_ladder = ladder_queue.front();
-      ladder_queue.pop();
-      string last_word = current_ladder.back();
+    for (const string &word : word_list) {
+      if (is_adjacent(last_word, word) && !visited.count(word)) {
+        visited.insert(word);
+        vector<string> new_ladder = ladder;
+        new_ladder.push_back(word);
 
-      for (const string &word : word_list) {
-        if (!visited.count(word) && is_adjacent(last_word, word)) {
-          vector<string> new_ladder = current_ladder;
-          new_ladder.push_back(word);
-
-          if (word == end_word) {
-            return new_ladder;
-          }
-
-          ladder_queue.push(new_ladder);
-          level_visited.insert(word);
+        if (word == end_word) {
+          return new_ladder;
         }
+
+        ladder_queue.push(new_ladder);
       }
     }
-
-    visited.insert(level_visited.begin(), level_visited.end());
   }
 
   return {};
