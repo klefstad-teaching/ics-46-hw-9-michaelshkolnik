@@ -21,9 +21,7 @@ bool edit_distance_within(const string &str1, const string &str2, int d) {
     return false;
   }
 
-  int diff = 0;
-  int index1 = 0;
-  int index2 = 0;
+  int diff = 0, index1 = 0, index2 = 0;
 
   while (index1 < len1 && index2 < len2) {
     if (str1[index1] != str2[index2]) {
@@ -86,9 +84,7 @@ vector<string> generate_word_ladder(const string &begin_word,
       }
     }
 
-    for (const string &w : level_visited) {
-      visited.insert(w);
-    }
+    visited.insert(level_visited.begin(), level_visited.end());
   }
 
   return {};
@@ -115,7 +111,7 @@ void print_word_ladder(const vector<string> &ladder) {
     if (i < ladder.size() - 1)
       cout << " ";
   }
-  cout << "\n";
+  cout << " \n";
 }
 
 void verify_word_ladder(const vector<string> &ladder, const string &begin_word,
@@ -125,7 +121,16 @@ void verify_word_ladder(const vector<string> &ladder, const string &begin_word,
     return;
   }
 
+  if (ladder.front() != begin_word || ladder.back() != end_word) {
+    error(begin_word, end_word, "Incorrect start or end word");
+    return;
+  }
+
   for (size_t i = 1; i < ladder.size(); i++) {
+    if (!word_list.count(ladder[i]) && ladder[i] != end_word) {
+      error(ladder[i - 1], ladder[i], "Word not in dictionary");
+      return;
+    }
     if (!is_adjacent(ladder[i - 1], ladder[i])) {
       error(ladder[i - 1], ladder[i], "Words are not adjacent");
       return;
